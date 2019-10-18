@@ -3,13 +3,26 @@ from bs4 import BeautifulSoup as bs
 import time
 import pandas as pd
 
-def init_browser():
-    # @NOTE: Replace the path with your actual path to the chromedriver
-    executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
-    return Browser("chrome", **executable_path, headless=False)
+# def init_browser():
+#     # @NOTE: Replace the path with your actual path to the chromedriver
 
-browser = init_browser()
-def mars_news():
+def mars_scrape():
+    executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
+    browser = Browser("chrome", **executable_path, headless=False)
+
+    final_product = {}
+    output = mars_news(browser)
+    final_product["mars_news"] = output[0]
+    final_product["paragraph_text"] = output[1]
+    final_product["mars_img"] = mars_img(browser)
+    final_product["Mars_Weather"] = Mars_Weather(browser)
+    final_product["mars_facts"] = mars_facts(browser)
+    final_product["mars_hemispheres"] = mars_hemispheres(browser)
+    return final_product
+
+# browser = init_browser()
+def mars_news(browser):
+    import time 
     news_url = "https://mars.nasa.gov/news/"
     browser.visit(news_url)
     html = browser.html
@@ -20,7 +33,7 @@ def mars_news():
     output = [news_title, news_p]
     return output
 
-def mars_img():
+def mars_img(browser):
     img_url = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
     browser.visit(img_url)
     html = browser.html
@@ -29,7 +42,7 @@ def mars_img():
     featured_img_url = "https://www.jpl.nasa.gov" + image
     return featured_img_url
 
-def Mars_Weather():
+def Mars_Weather(browser):
     twitter_page_url = "https://twitter.com/marswxreport?lang=en"
     browser.visit(twitter_page_url)
     html = browser.html
@@ -39,7 +52,7 @@ def Mars_Weather():
     mars_weather = [header, tweet]
     return mars_weather
 
-def mars_facts():
+def mars_facts(browser):
     facts_url = "https://space-facts.com/mars/"
     browser.visit(facts_url)
     mars_data = pd.read_html(facts_url)
@@ -49,7 +62,7 @@ def mars_facts():
     mars_facts = mars_data.to_html(index = True, header =True)
     return mars_facts
 
-def mars_hemispheres():
+def mars_hemispheres(browser):
     hemispheres_url = "https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars"
     browser.visit(hemispheres_url)
     html = browser.html
@@ -72,13 +85,5 @@ def mars_hemispheres():
         mars_hemisphere.append(dictionary)
     return mars_hemisphere
 
-def mars_scrape():
-    final_product = {}
-    output = mars_news()
-    final_product["mars_news"] = output[0]
-    final_product["paragraph_text"] = output[1]
-    final_product["mars_img"] = mars_img()
-    final_product["Mars_Weather"] = Mars_Weather()
-    final_product["mars_facts"] = mars_facts()
-    final_product["mars_hemispheres"] = mars_hemispheres()
-    return final_product
+if __name__ == "__main__":
+    print(mars_scrape())
